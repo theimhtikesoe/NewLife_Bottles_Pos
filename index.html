@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Life Sales and Reports</title>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-4">Sales & Reports</h1>
+        <button class="btn btn-primary newUser" data-toggle="modal" data-target="#userForm">Add New Record</button>
+        <button class="btn btn-success addItem" data-toggle="modal" data-target="#itemForm">Add New Item</button>
+        <input type="text" id="searchName" placeholder="Search by Name or Date" class="form-control mt-2">
+        <button class="btn btn-secondary printBtn">Print Data</button>
+        
+        <table class="table table-bordered mt-3 table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Pack 1</th>
+                    <th>Name 2</th>
+                    <th>Price 2</th>
+                    <th>Qty 2</th>
+                    <th>Pack 2</th>
+                    <th>Total Items</th>
+                    <th>Total Price</th>
+                    <th>Total Packs</th>
+                    <th>Income</th>
+                    <th>Refund</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="data"></tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="userForm" tabindex="-1" role="dialog" aria-labelledby="userFormLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userFormLabel">Add New Record</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="myForm">
+                        <div class="form-group">
+                            <label for="date">Date (ရက်စွဲ)</label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Name (အမျိုးအမည် ၁)</label>
+                            <select class="form-control" id="name">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price (နှုန်း)</label>
+                            <input type="text" class="form-control" id="price" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="qty">Qty (တစ်ကဒ်ပါဗူးအရေအတွက် ၁)</label>
+                            <input type="number" class="form-control" id="qty" required value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="pack1">Pack 1 (ကဒ်စုစုပေါင်း ၁)</label>
+                            <input type="number" class="form-control" id="pack1" required value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="name2">Name 2 (အမျိုးအမည် ၂)</label>
+                            <select class="form-control" id="name2">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="price2">Price 2 (နှုန်း)</label>
+                            <input type="text" class="form-control" id="price2" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="qty2">Qty 2 (တစ်ကဒ်ပါဗူးအရေအတွက် ၂)</label>
+                            <input type="number" class="form-control" id="qty2" required value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="pack2">Pack 2 (ကဒ်စုစုပေါင်း ၂)</label>
+                            <input type="number" class="form-control" id="pack2" required value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalItems">Total Items (စုစုပေါင်းဗူးအရေအတွက်)</label>
+                            <input type="text" class="form-control" id="totalItems" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="totalPrice">Total Price (စုစုပေါင်းကျသင့်ငွေ)</label>
+                            <input type="text" class="form-control" id="totalPrice" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="totalPack">Total Packs (စုစုပေါင်းကဒ်)</label>
+                            <input type="text" class="form-control" id="totalPack" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="income">Income (ရငွေ)</label>
+                            <input type="number" class="form-control" id="income" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="refund">Refund (အမ်းငွေ)</label>
+                            <input type="text" class="form-control" id="refund" readonly>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="itemForm" tabindex="-1" role="dialog" aria-labelledby="itemFormLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemFormLabel">Add New Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="newItemForm">
+                        <div class="form-group">
+                            <label for="newItemName">Item Name</label>
+                            <input type="text" class="form-control" id="newItemName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newItemPrice">Item Price (MMK)</label>
+                            <input type="number" class="form-control" id="newItemPrice" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="scripts.js"></script>
+    
+</body>
+</html>
