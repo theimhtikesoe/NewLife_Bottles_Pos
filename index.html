@@ -3,151 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Life Sales and Reports</title>
-    
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+    <title>New Life Water POS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center mt-4">Sales & Reports</h1>
-        <button class="btn btn-primary newUser" data-toggle="modal" data-target="#userForm">Add New Record</button>
-        <button class="btn btn-success addItem" data-toggle="modal" data-target="#itemForm">Add New Item</button>
-        <input type="text" id="searchName" placeholder="Search by Name or Date" class="form-control mt-2">
-        <button class="btn btn-secondary printBtn">Print Data</button>
-        
-        <table class="table table-bordered mt-3 table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Qty</th>
-                    <th>Pack 1</th>
-                    <th>Name 2</th>
-                    <th>Price 2</th>
-                    <th>Qty 2</th>
-                    <th>Pack 2</th>
-                    <th>Total Items</th>
-                    <th>Total Price</th>
-                    <th>Total Packs</th>
-                    <th>Income</th>
-                    <th>Refund</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="data"></tbody>
-        </table>
-    </div>
+    <div class="container-fluid py-3">
+        <!-- Header -->
+        <header class="text-center mb-4 bg-primary text-white p-3 rounded">
+            <h1>New Life Pure Water Factory</h1>
+            <h2>POS & Inventory System</h2>
+        </header>
 
-    <div class="modal fade" id="userForm" tabindex="-1" role="dialog" aria-labelledby="userFormLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="userFormLabel">Add New Record</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+        <!-- Control Buttons -->
+        <div class="mb-3">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newSaleModal">
+                New Sale
+            </button>
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#inventoryModal">
+                Inventory
+            </button>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#newCategoryModal">
+                Add Category
+            </button>
+        </div>
+
+        <!-- Search Section -->
+        <div class="mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by Customer, Date or Item">
+        </div>
+
+        <!-- Sales Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTable">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- New Category Modal -->
+        <div class="modal fade" id="newCategoryModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title">Add New Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>Category Name</label>
+                            <input type="text" id="categoryName" class="form-control" placeholder="Example: 0.3L">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveCategory()">Save</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="myForm">
-                        <div class="form-group">
-                            <label for="date">Date (ရက်စွဲ)</label>
-                            <input type="date" class="form-control" id="date" required>
+            </div>
+        </div>
+
+        <!-- New Sale Modal -->
+        <div class="modal fade" id="newSaleModal">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">New Sale</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label>Customer Name</label>
+                                    <input type="text" id="customerName" class="form-control">
+                                </div>
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        Categories
+                                    </div>
+                                    <div class="card-body" id="categoryList">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header bg-info text-white">
+                                        Items in Category
+                                    </div>
+                                    <div class="card-body" id="itemList">
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-3">
+                                    <div class="card-header bg-secondary text-white">
+                                        Cart
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table" id="cartTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Packs</th>
+                                                    <th>Total Bottles</th>
+                                                    <th>Price</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="cartItems">
+                                            </tbody>
+                                        </table>
+                                        <div class="text-end fw-bold fs-4">
+                                            Total: <span id="grandTotal">0</span> MMK
+                                        </div>
+                                        <button class="btn btn-success w-100 mt-3" onclick="completeSale()">Complete Sale</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="name">Name (အမျိုးအမည် ၁)</label>
-                            <select class="form-control" id="name">
-                                <option value="">Select</option>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Modal -->
+        <div class="modal fade" id="inventoryModal">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title">Inventory Management</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#newItemModal">Add New Item</button>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Variant</th>
+                                        <th>Pack Size</th>
+                                        <th>Price per Pack</th>
+                                        <th>Stock</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Item Modal -->
+        <div class="modal fade" id="newItemModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Add New Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>Category</label>
+                            <select class="form-select" id="itemCategory">
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="price">Price (နှုန်း)</label>
-                            <input type="text" class="form-control" id="price" readonly>
+                        <div class="mb-3">
+                            <label>Variant</label>
+                            <input type="text" class="form-control" id="itemVariant" placeholder="Example: Blue, White Small">
                         </div>
-                        <div class="form-group">
-                            <label for="qty">Qty (တစ်ကဒ်ပါဗူးအရေအတွက် ၁)</label>
-                            <input type="number" class="form-control" id="qty" required value="1">
+                        <div class="mb-3">
+                            <label>Pack Size (Bottles per Pack)</label>
+                            <input type="number" class="form-control" id="itemPackSize">
                         </div>
-                        <div class="form-group">
-                            <label for="pack1">Pack 1 (ကဒ်စုစုပေါင်း ၁)</label>
-                            <input type="number" class="form-control" id="pack1" required value="1">
+                        <div class="mb-3">
+                            <label>Price per Pack</label>
+                            <input type="number" class="form-control" id="itemPrice">
                         </div>
-                        <div class="form-group">
-                            <label for="name2">Name 2 (အမျိုးအမည် ၂)</label>
-                            <select class="form-control" id="name2">
-                                <option value="">Select</option>
-                            </select>
+                        <div class="mb-3">
+                            <label>Initial Stock</label>
+                            <input type="number" class="form-control" id="itemStock" value="0">
                         </div>
-                        <div class="form-group">
-                            <label for="price2">Price 2 (နှုန်း)</label>
-                            <input type="text" class="form-control" id="price2" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="qty2">Qty 2 (တစ်ကဒ်ပါဗူးအရေအတွက် ၂)</label>
-                            <input type="number" class="form-control" id="qty2" required value="1">
-                        </div>
-                        <div class="form-group">
-                            <label for="pack2">Pack 2 (ကဒ်စုစုပေါင်း ၂)</label>
-                            <input type="number" class="form-control" id="pack2" required value="1">
-                        </div>
-                        <div class="form-group">
-                            <label for="totalItems">Total Items (စုစုပေါင်းဗူးအရေအတွက်)</label>
-                            <input type="text" class="form-control" id="totalItems" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="totalPrice">Total Price (စုစုပေါင်းကျသင့်ငွေ)</label>
-                            <input type="text" class="form-control" id="totalPrice" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="totalPack">Total Packs (စုစုပေါင်းကဒ်)</label>
-                            <input type="text" class="form-control" id="totalPack" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="income">Income (ရငွေ)</label>
-                            <input type="number" class="form-control" id="income" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="refund">Refund (အမ်းငွေ)</label>
-                            <input type="text" class="form-control" id="refund" readonly>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                        <button class="btn btn-primary" onclick="saveItem()">Save Item</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="itemForm" tabindex="-1" role="dialog" aria-labelledby="itemFormLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="itemFormLabel">Add New Item</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="newItemForm">
-                        <div class="form-group">
-                            <label for="newItemName">Item Name</label>
-                            <input type="text" class="form-control" id="newItemName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="newItemPrice">Item Price (MMK)</label>
-                            <input type="number" class="form-control" id="newItemPrice" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Item</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-<script src="scripts.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
