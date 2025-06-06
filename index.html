@@ -1,207 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Life Water POS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Life Bottles - Multi-Role POS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="container-fluid py-3">
-        <!-- Header -->
-        <header class="text-center mb-4 bg-primary text-white p-3 rounded">
-            <h1>New Life Pure Water Factory</h1>
-            <h2>POS & Inventory System</h2>
-        </header>
+<body class="bg-gray-100 text-gray-800 p-4">
+  <header class="text-center mb-6">
+    <h1 class="text-3xl font-bold text-green-600">New Life Plastic Bottles</h1>
+    <p class="text-sm text-gray-600">Sustainable. Simple. Local.</p>
+  </header>
 
-        <!-- Control Buttons -->
-        <div class="mb-3">
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newSaleModal">
-                New Sale
-            </button>
-            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#inventoryModal">
-                Inventory
-            </button>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#newCategoryModal">
-                Add Category
-            </button>
-        </div>
+  <!-- Login Panel -->
+  <section id="login-section" class="max-w-md mx-auto bg-white p-6 rounded shadow mb-10">
+    <h2 class="text-xl font-bold mb-4 text-center">🔐 Login</h2>
+    <form onsubmit="userLogin(event)" class="space-y-4">
+      <input type="email" id="login-email" placeholder="Email" required class="w-full p-2 border rounded">
+      <input type="password" id="login-password" placeholder="Password" required class="w-full p-2 border rounded">
+      <select id="login-role" class="w-full p-2 border rounded">
+        <option value="admin">Admin</option>
+        <option value="cashier">Cashier</option>
+        <option value="viewer">Viewer</option>
+      </select>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
+    </form>
+  </section>
 
-        <!-- Search Section -->
-        <div class="mb-3">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search by Customer, Date or Item">
-        </div>
+  <section id="logout-section" class="text-center hidden mb-6">
+    <p class="mb-2">✅ Logged in as <span id="role-label" class="font-semibold"></span> (<span id="email-label"></span>)</p>
+    <button onclick="userLogout()" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
+  </section>
 
-        <!-- Sales Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Date</th>
-                        <th>Customer</th>
-                        <th>Items</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="salesTable">
-                </tbody>
-            </table>
-        </div>
+  <!-- Filters -->
+  <section class="mb-6">
+    <label for="category" class="block mb-2 font-medium">Filter by Category:</label>
+    <select id="category" onchange="filterProducts()" class="p-2 border rounded">
+      <option value="all">All</option>
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="large">Large</option>
+    </select>
+  </section>
 
-        <!-- New Category Modal -->
-        <div class="modal fade" id="newCategoryModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                        <h5 class="modal-title">Add New Category</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label>Category Name</label>
-                            <input type="text" id="categoryName" class="form-control" placeholder="Example: 0.3L">
-                        </div>
-                        <button class="btn btn-primary" onclick="saveCategory()">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Products -->
+  <section id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></section>
 
-        <!-- New Sale Modal -->
-        <div class="modal fade" id="newSaleModal">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title">New Sale</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label>Customer Name</label>
-                                    <input type="text" id="customerName" class="form-control">
-                                </div>
-                                <div class="card">
-                                    <div class="card-header bg-primary text-white">
-                                        Categories
-                                    </div>
-                                    <div class="card-body" id="categoryList">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-8">
-                                <div class="card">
-                                    <div class="card-header bg-info text-white">
-                                        Items in Category
-                                    </div>
-                                    <div class="card-body" id="itemList">
-                                    </div>
-                                </div>
-                                
-                                <div class="card mt-3">
-                                    <div class="card-header bg-secondary text-white">
-                                        Cart
-                                    </div>
-                                    <div class="card-body">
-                                        <table class="table" id="cartTable">
-                                            <thead>
-                                                <tr>
-                                                    <th>Item</th>
-                                                    <th>Packs</th>
-                                                    <th>Total Bottles</th>
-                                                    <th>Price</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="cartItems">
-                                            </tbody>
-                                        </table>
-                                        <div class="text-end fw-bold fs-4">
-                                            Total: <span id="grandTotal">0</span> MMK
-                                        </div>
-                                        <button class="btn btn-success w-100 mt-3" onclick="completeSale()">Complete Sale</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Cart -->
+  <section class="mt-10">
+    <h2 class="text-xl font-semibold mb-2">🛒 Cart</h2>
+    <ul id="cart-items" class="list-disc pl-5 text-sm"></ul>
+    <p class="mt-2 text-lg font-bold">Total: <span id="cart-total">0</span> THB</p>
+    <button id="checkout-btn" onclick="checkout()" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded">Checkout</button>
+  </section>
 
-        <!-- Inventory Modal -->
-        <div class="modal fade" id="inventoryModal">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header bg-info text-white">
-                        <h5 class="modal-title">Inventory Management</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#newItemModal">Add New Item</button>
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Variant</th>
-                                        <th>Pack Size</th>
-                                        <th>Price per Pack</th>
-                                        <th>Stock</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="inventoryTable">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- New Item Modal -->
-        <div class="modal fade" id="newItemModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">Add New Item</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label>Category</label>
-                            <select class="form-select" id="itemCategory">
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label>Variant</label>
-                            <input type="text" class="form-control" id="itemVariant" placeholder="Example: Blue, White Small">
-                        </div>
-                        <div class="mb-3">
-                            <label>Pack Size (Bottles per Pack)</label>
-                            <input type="number" class="form-control" id="itemPackSize">
-                        </div>
-                        <div class="mb-3">
-                            <label>Price per Pack</label>
-                            <input type="number" class="form-control" id="itemPrice">
-                        </div>
-                        <div class="mb-3">
-                            <label>Initial Stock</label>
-                            <input type="number" class="form-control" id="itemStock" value="0">
-                        </div>
-                        <button class="btn btn-primary" onclick="saveItem()">Save Item</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Order History -->
+  <section id="order-history-section" class="mt-10 hidden">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">📜 Order History</h2>
+      <button onclick="downloadOrdersCSV()" class="px-4 py-2 bg-yellow-500 text-white rounded">Download CSV</button>
     </div>
+    <ul id="order-history" class="text-sm space-y-2"></ul>
+  </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+  <!-- Sales Chart -->
+  <section id="sales-chart-section" class="mt-10 hidden">
+    <h2 class="text-xl font-bold mb-4">📈 Sales Chart</h2>
+    <canvas id="salesChart" height="100"></canvas>
+  </section>
+
+  <!-- Admin Panel -->
+  <section id="admin-panel" class="mt-10 hidden">
+    <h2 class="text-xl font-bold mb-4">🛠 Admin Product Manager</h2>
+    <form onsubmit="addProduct(event)" class="space-y-2">
+      <input type="text" id="new-name" placeholder="Product Name" class="p-2 border rounded w-full">
+      <input type="number" id="new-price" placeholder="Price" class="p-2 border rounded w-full">
+      <select id="new-category" class="p-2 border rounded w-full">
+        <option value="small">Small</option>
+        <option value="medium">Medium</option>
+        <option value="large">Large</option>
+      </select>
+      <input type="number" id="new-stock" placeholder="Stock (pcs)" class="p-2 border rounded w-full">
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Add Product</button>
+    </form>
+    <div id="admin-products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6"></div>
+  </section>
+
+  <script>
+    let role = null;
+    let email = null;
+    let products = JSON.parse(localStorage.getItem('products')) || [
+      { id: 1, name: '300ml Bottle', price: 3, category: 'small', stock: 100 },
+      { id: 2, name: '500ml Bottle', price: 5, category: 'medium', stock: 100 },
+      { id: 3, name: '900ml Bottle', price: 8, category: 'large', stock: 100 },
+    ];
+
+    function saveProducts() {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    function userLogin(e) {
+      e.preventDefault();
+      email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-password').value;
+      const selectedRole = document.getElementById('login-role').value;
+      if ((selectedRole === 'admin' && email === 'admin@newlife.com' && pass === 'admin123') || selectedRole !== 'admin') {
+        localStorage.setItem('userRole', selectedRole);
+        localStorage.setItem('userEmail', email);
+        role = selectedRole;
+        showInterface();
+        Swal.fire('Welcome!', `Logged in as ${role}`, 'success');
+      } else {
+        Swal.fire('Unauthorized', 'Invalid admin credentials.', 'error');
+      }
+    }
+
+    function userLogout() {
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userEmail');
+      role = null;
+      showInterface();
+    }
+
+    function showInterface() {
+      role = localStorage.getItem('userRole');
+      email = localStorage.getItem('userEmail');
+      document.getElementById('login-section').classList.toggle('hidden', !!role);
+      document.getElementById('logout-section').classList.toggle('hidden', !role);
+      document.getElementById('admin-panel').classList.toggle('hidden', role !== 'admin');
+      document.getElementById('order-history-section').classList.toggle('hidden', role !== 'admin');
+      document.getElementById('sales-chart-section').classList.toggle('hidden', role !== 'admin');
+      document.getElementById('checkout-btn').disabled = role === 'viewer';
+      document.getElementById('checkout-btn').classList.toggle('opacity-50', role === 'viewer');
+      document.getElementById('role-label').innerText = role;
+      document.getElementById('email-label').innerText = email;
+      if (role === 'admin') renderAdminProducts();
+      renderSalesChart();
+    }
+
+    function renderProducts(filter = 'all') {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = '';
+      const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
+      filtered.forEach(product => {
+        const disabled = product.stock <= 0 ? 'disabled opacity-50 cursor-not-allowed' : '';
+        const div = document.createElement('div');
+        div.className = 'bg-white shadow rounded p-4 text-center';
+        div.innerHTML = `
+          <h3 class="font-semibold text-lg">${product.name}</h3>
+          <p class="text-sm text-gray-500">${product.price} THB - Stock: ${product.stock}</p>
+          <button onclick="addToCart(${product.id})" class="mt-2 px-4 py-1 bg-green-600 text-white rounded ${disabled}">Add to Cart</button>
+        `;
+        productList.appendChild(div);
+      });
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      if (product.stock <= 0) return;
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const item = cart.find(i => i.id === id);
+      if (item) item.qty++;
+      else cart.push({ id, qty: 1 });
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function renderCart() {
+      const cartItems = document.getElementById('cart-items');
+      const cartTotal = document.getElementById('cart-total');
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cartItems.innerHTML = '';
+      let total = 0;
+      cart.forEach(({ id, qty }) => {
+        const product = products.find(p => p.id === id);
+        total += product.price * qty;
+        const li = document.createElement('li');
+        li.textContent = `${product.name} x ${qty} = ${product.price * qty} THB`;
+        cartItems.appendChild(li);
+      });
+      cartTotal.textContent = total;
+    }
+
+    function checkout() {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      if (cart.length === 0) return Swal.fire('Oops!', 'Cart is empty.', 'warning');
+      const timestamp = new Date().toLocaleString();
+      const orders = JSON.parse(localStorage.getItem('orders')) || [];
+      orders.push({ timestamp, cart });
+      localStorage.setItem('orders', JSON.stringify(orders));
+
+      // Decrease stock
+      cart.forEach(({ id, qty }) => {
+        const product = products.find(p => p.id === id);
+        product.stock -= qty;
+      });
+      saveProducts();
+
+      localStorage.removeItem('cart');
+      renderCart();
+      renderProducts();
+      renderOrderHistory();
+      renderSalesChart();
+      Swal.fire('Success!', 'Order has been placed.', 'success');
+    }
+
+    function downloadOrdersCSV() {
+      const orders = JSON.parse(localStorage.getItem('orders')) || [];
+      let csv = 'Timestamp,Product,Quantity\n';
+      orders.forEach(order => {
+        order.cart.forEach(item => {
+          const product = products.find(p => p.id === item.id);
+          csv += `${order.timestamp},${product.name},${item.qty}\n`;
+        });
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'order_history.csv';
+      link.click();
+    }
+
+    function renderOrderHistory() {
+      const orders = JSON.parse(localStorage.getItem('orders')) || [];
+      const list = document.getElementById('order-history');
+      list.innerHTML = '';
+      orders.slice().reverse().forEach(order => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${order.timestamp}</strong><ul class="ml-4">${order.cart.map(i => {
+          const p = products.find(prod => prod.id === i.id);
+          return `<li>${p.name} x ${i.qty}</li>`;
+        }).join('')}</ul>`;
+        list.appendChild(li);
+      });
+    }
+
+    function renderSalesChart() {
+      if (role !== 'admin') return;
+      const orders = JSON.parse(localStorage.getItem('orders')) || [];
+      const sales = {};
+      orders.forEach(order => {
+        order.cart.forEach(i => {
+          const product = products.find(p => p.id === i.id);
+          if (!sales[product.name]) sales[product.name] = 0;
+          sales[product.name] += i.qty;
+        });
+      });
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(sales),
+          datasets: [{
+            label: 'Sales Volume',
+            data: Object.values(sales),
+            backgroundColor: 'rgba(34, 197, 94, 0.6)',
+            borderColor: 'rgba(34, 197, 94, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function renderAdminProducts() {
+      const adminList = document.getElementById('admin-products');
+      adminList.innerHTML = '';
+      products.forEach((p, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-white shadow p-3 rounded';
+        div.innerHTML = `<p><strong>${p.name}</strong> - ${p.price} THB [${p.category}] - Stock: ${p.stock}</p>
+        <button onclick="deleteProduct(${index})" class="mt-2 px-3 py-1 bg-red-600 text-white rounded">Delete</button>`;
+        adminList.appendChild(div);
+      });
+    }
+
+    function addProduct(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-name').value.trim();
+      const price = parseFloat(document.getElementById('new-price').value);
+      const category = document.getElementById('new-category').value;
+      const stock = parseInt(document.getElementById('new-stock').value);
+      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill all fields.');
+      const newProduct = { id: Date.now(), name, price, category, stock };
+      products.push(newProduct);
+      saveProducts();
+      renderProducts();
+      renderAdminProducts();
+      document.querySelector('form').reset();
+    }
+
+    function deleteProduct(index) {
+      products.splice(index, 1);
+      saveProducts();
+      renderProducts();
+      renderAdminProducts();
+    }
+
+    function filterProducts() {
+      const cat = document.getElementById('category').value;
+      renderProducts(cat);
+    }
+
+    renderProducts();
+    renderCart();
+    renderOrderHistory();
+    showInterface();
+  </script>
 </body>
 </html>
